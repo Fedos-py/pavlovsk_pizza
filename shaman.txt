@@ -6,7 +6,7 @@ pip freeze > requirements.txt
 New Procfile
 git add .
 git commit -m "Add all files"
-heroku git:remote -a fedos-007
+heroku git:remote -a pizza-pavlovsk
 git push heroku master
 
 
