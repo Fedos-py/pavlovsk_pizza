@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Pizza Online{% endblock %}
+
+{% block content %}
+
+    <h1>Главная</h1>
+
+    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+        {% for el in items %}
+            {% if current_user.role == 'admin' or el.isActive %}
+                <div class="card mb-4 rounded-3 shadow-sm">
+                    <div class="card-header py-3">
+                       <h4 class="my-0 fw-normal">{{ el.title }}</h4>
+                    </div>
+                    <div class="card-body">
+                       <h1 class="card-title pricing-card-title">{{el.price}}<small class="text-muted fw-light"> руб</small></h1>
+                       <ul class="list-unstyled mt-3 mb-4">
+                           <img src="/static/img/{{ el.image }}" width="250" height="250" class="img-rounded">
+                      </ul>
+                      <form method="post">
+                        <input type="hidden" class="form-control" value="{{ el.id }}" name="id" id="id">
+                        {% if current_user.role == 'admin' %}
+                        {% else  %}
+
+                        {% endif %}
+                        <input type="submit" class="btn btn-primary" name="btn" value="Заказать">
+
+
+                      </form>
+
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+
+{% endblock %}

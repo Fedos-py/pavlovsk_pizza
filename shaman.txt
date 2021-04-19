@@ -1,0 +1,26 @@
+установить cli heroku
+heroku login
+
+pip install gunicorn
+pip freeze > requirements.txt
+New Procfile
+git add .
+git commit -m "Add all files"
+heroku git:remote -a fedos-007
+git push heroku master
+
+
+heroku login
+pip install gunicorn
+pip freeze > requirements.txt
+New Procfile
+git add .
+git commit -m "Add all files"
+heroku git:remote -a fedos-007
+git push heroku master
+
+
+удалить из гита уже закомитченый файл
+git rm --cached <file>
+или папку
+git rm -r --cached "storage/framework/cache/"

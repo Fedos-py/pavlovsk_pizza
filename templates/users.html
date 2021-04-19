@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Управление пользователями{% endblock %}
+{% block content %}
+    <h1>Редактирование учетной записи</h1>
+    <br>
+
+    <div class="row row-cols-1 row-cols-md-1 mb-1 text-left">
+        <br>
+        <table class="table">
+            <thead>
+            <th>id</th> <th>name</th><th>role</th> <th>действие</th>
+            </thead>
+            <tbody>
+                {% for el in data %}
+                    <div>
+                        <td>{{el.id}} </td><td>{{el.name}}</td><td><select><option>customer</option><option>admin</option></select></td><td> <button type="submit">Сохранить</button></td><tr>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
