@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Корзина{% endblock %}
+{% block content %}
+    <h1>Корзина</h1>
+    <br>
+
+    <form action="/basket" method="post">
+    <div class="row row-cols-1 row-cols-md-1 mb-1 text-left">
+        <br>
+        <table class="table">
+            <thead>
+            <th>название</th> <th>цена</th><th>количество</th> <th>действие</th>
+            </thead>
+            <tbody>
+                {% for el in data %}
+                    <div>
+                        <td>{{el.name}} </td><td>{{el.price}}</td><td>{{el.count}}</td><td><input type="submit"  name="btn{{el.id}}" value="+"> <input type="submit"  name="btn{{el.id}}" value="-"> <input type="submit"  name="del{{el.id}}" value="Удалить"></td><tr>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <h2>Итого: {{summa}}</h2>
+    <input type="submit" class="btn btn-primary" name="btn" value="Оформить заказ">
+    <input type="submit" class="btn btn-danger" name="btn" value="Очистить корзину">
+    </form>
+{% endblock %}

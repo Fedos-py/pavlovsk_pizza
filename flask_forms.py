@@ -12,9 +12,19 @@ class LoginForm(FlaskForm):
     def __repr__(self):
         return '<User %r>' % self.username
 
+class OrderForm(FlaskForm):
+    address = StringField('Адрес', validators=[DataRequired()])
+    comment = PasswordField('Комментарий к заказу', validators=[DataRequired()])
+    remember_me = BooleanField('Запомнить меня')
+    submit = SubmitField('Оформить')
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
 class AddItemForm(FlaskForm):
     name = StringField('Имя', validators=[DataRequired()])
     price = StringField('Цена', validators=[DataRequired()])
+    image = StringField('Изображение', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Добавить')
 

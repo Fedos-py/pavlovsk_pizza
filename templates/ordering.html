@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Оформление заказа</h1>
+<p><strong>Заказ id 0000001 на сумму {{summa}} рублей</p></strong>
+<p>
+        {{ form.address.label }}<br>
+        {{ form.address(class="form-control") }}<br>
+        {% for error in form.address.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endfor %}
+    </p>
+<p>
+        {{ form.comment.label }}<br>
+        {{ form.comment(class="form-control") }}<br>
+        {% for error in form.comment.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endfor %}
+    </p>
+<p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+{% endblock %}

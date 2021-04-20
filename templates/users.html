@@ -4,7 +4,7 @@
 {% block content %}
     <h1>Редактирование учетной записи</h1>
     <br>
-
+    <form action="/users" method="post">
     <div class="row row-cols-1 row-cols-md-1 mb-1 text-left">
         <br>
         <table class="table">
@@ -14,10 +14,11 @@
             <tbody>
                 {% for el in data %}
                     <div>
-                        <td>{{el.id}} </td><td>{{el.name}}</td><td><select><option>customer</option><option>admin</option></select></td><td> <button type="submit">Сохранить</button></td><tr>
+                        <td>{{el.id}} </td><td>{{el.name}}</td><td><select><option>customer</option><option>admin</option></select></td><td><input type="submit"  name="del{{el.id}}" value="Сохранить"> <input type="submit"  name="del{{el.id}}" value="Удалить"></td><tr>
                     </div>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    </form>
 {% endblock %}

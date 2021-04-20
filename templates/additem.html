@@ -21,6 +21,15 @@
     </div>
     {% endfor %}
     </p>
+    <p>
+        {{ form.image.label }}<br>
+        {{ form.image(class="form-control") }}<br>
+        {% for error in form.image.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endfor %}
+    </p>
     <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
 </form>
