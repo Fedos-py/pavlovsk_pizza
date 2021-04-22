@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from flask_forms import *
+from geocoder import geocoder_get_address
 import random
 
 
@@ -91,6 +92,20 @@ class Recept(db.Model):
     about = db.Column(db.Text)
     recept = db.Column(db.Text)
 
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    address = db.Column(db.String)
+    comment = db.Column(db.Text)
+    total = db.Column(db.Integer)
+
+class Order_items(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer)
+    item = db.Column(db.Text)
+    count = db.Column(db.Integer, default=1)
+    about = db.Column(db.Text)
+    price = db.Column(db.Integer, nullable=False)
+
 class Basket(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -170,11 +185,34 @@ def users():
             basket.count += 1
     return render_template("users.html", data=users)
 
+@app.route('/orders', methods=['GET', 'POST'])
+def orderd():
+    orders = Order.query.all()
+    return render_template("orders.html", data=orders)
+
+@app.route('/order', methods=['GET', 'POST'])
+def order():
+    if request.method == "POST":
+        id = request.form['id']
+        print(id)
+        if request.form.get("btn") == "Удалить":
+            ord = Order.query.get(id)
+            db.session.delete(ord)
+            db.session.commit()
+            return redirect("/orders")
+        elif request.form.get("open") == "Подробнее":
+            order = Order.query.filter_by(id=id).first()
+            items = Order_items.query.filter_by(id=id).all()
+            print(order)
+            return render_template("order.html", data=order, items=items)
+    else:
+        return 'ошибка доступа, undefined id!'
+
 @app.route('/calc', methods=['GET', 'POST'])
 def calc():
     return render_template("deliveryCalculaor.html")
 
-@app.route('/ordering', methods=['GET', 'POST'])
+@app.route('/ordering', methods=['POST', 'GET'])
 def ordering():
     form = OrderForm()
     items = Basket.query.filter_by(user_id=current_user.id).all()
@@ -182,6 +220,27 @@ def ordering():
     summa = 0
     for elem in items:
         summa += elem.price * elem.count
+    if request.method == "POST":
+        print(True)
+        print(request.form)
+        if request.form.get("submit") == "Оформить заказ":
+            order = Order()
+            d_coord = request.form['d_coord']
+            d_coord = d_coord.partition(",")[2] + d_coord.partition(",")[1] + d_coord.partition(",")[0]
+            order.address = geocoder_get_address(d_coord)
+            order.total = int(request.form['d_cost']) + summa
+            order.comment = request.form['comment']
+            db.session.add(order)
+            db.session.commit()
+            order = Order.query.filter_by(address=geocoder_get_address(d_coord)).first()
+            print(order.id)
+            basket = Basket.query.filter_by(user_id=current_user.id).all()
+            for elem in basket:
+                item = Order_items(order_id=order.id, item=elem.name, count=elem.count, about=elem.about, price=elem.price)
+                db.session.add(item)
+            item = Order_items(order_id=order.id, item="Доставка", count=1, about='Доставка заказа по указанному адресу.', price=int(request.form['d_cost']))
+            db.session.add(item)
+            db.session.commit()
     return render_template("ordering.html", summa=summa, form=form)
 
 @app.route('/basket', methods=['GET', 'POST'])

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Управление пользователями{% endblock %}
+{% block content %}
+    <h1>Редактирование учетной записи</h1>
+    <br>
+    <div class="row row-cols-1 row-cols-md-1 mb-1 text-left">
+        <br>
+        <table class="table">
+            <thead>
+            <th>id</th> <th>адресс</th><th>комментарий</th> <th>сумма</th> <th>действие</th>
+            </thead>
+            <tbody>
+                {% for el in data %}
+                    <div>
+                        <samp>
+                            <form action="/order" method="post">
+                            <tr><td>{{el.id}} </td><td>{{el.address}}</td><td>{{el.comment}}</td><td>{{el.total}}</td><td><input type="submit"  name="open" value="Подробнее"> <input type="submit" class="btn btn-danger" name="btn" value="Удалить"><input type="text" name="id" id="id" value="{{el.id}}" size="5" hidden="hidden"></td></tr>
+                            </form>
+                         </samp>
+                    </div>
+                {% endfor %}
+            </tbody>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

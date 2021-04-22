@@ -1,26 +1,39 @@
 {% extends "base.html" %}
 
+{% block inhead %}
+    <style>
+         #map {
+            width: 800px;
+            height: 600px;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
 <h1>Оформление заказа</h1>
-<p><strong>Заказ id 0000001 на сумму {{summa}} рублей</p></strong>
-<p>
-        {{ form.address.label }}<br>
-        {{ form.address(class="form-control") }}<br>
-        {% for error in form.address.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
+<p><strong>Заказ на сумму {{summa}} рублей</strong></p>
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&amp;apikey=40d1649f-0493-4b70-98ba-98533de7710b" type="text/javascript"></script>
+    <script src="static/js/deliveryCalculator.js" type="text/javascript"></script>
+    <script src="static/js/1.js" type="text/javascript"></script>
+    <div align="center">
+        <h3 id="d_info"> Укажите на карте адрес доставки </h3>
+        <div id="map"></div>
     </div>
-    {% endfor %}
-    </p>
+<br>
+<form action="/ordering" method="post">
+Координаты доставки: <input size="42" name="d_coord" id="d_coord"> <br>
+Стоимость доставки: <input size="3" name="d_cost" id="d_cost"> рублей<br>
 <p>
         {{ form.comment.label }}<br>
-        {{ form.comment(class="form-control") }}<br>
+        {{ form.comment(class="form-control", type="text") }}<br>
         {% for error in form.comment.errors %}
     <div class="alert alert-danger" role="alert">
         {{ error }}
     </div>
     {% endfor %}
     </p>
-<p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary", value="Оформить заказ") }}</p><br>
+    </form>
 {% endblock %}
