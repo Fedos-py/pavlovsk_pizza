@@ -40,7 +40,7 @@ class User(UserMixin, db.Model):
 def inject_user():
     return dict(basket_count=basket_count)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def mainpage():
     update_basket()
     return render_template('index.html', title='Главная')
