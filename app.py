@@ -42,7 +42,8 @@ def inject_user():
 
 @app.route('/', methods=['GET', 'POST'])
 def mainpage():
-    update_basket()
+    if not current_user.is_anonymous:
+        update_basket()
     return render_template('index.html', title='Главная')
 
 @app.route('/profile')
