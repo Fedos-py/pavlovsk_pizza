@@ -24,11 +24,21 @@
 <br>
 <form action="/ordering" method="post">
 Координаты доставки: <input size="42" name="d_coord" id="d_coord"> <br>
-Стоимость доставки: <input size="3" name="d_cost" id="d_cost"> рублей<br>
+Стоимость доставки: <input size="3" name="d_cost" id="d_cost"> рублей<br><br>
 <p>
         {{ form.comment.label }}<br>
         {{ form.comment(class="form-control", type="text") }}<br>
         {% for error in form.comment.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endfor %}
+    </p>
+
+<p>
+        {{ form.phone.label }}<br>
+        {{ form.phone(class="form-control", type="text") }}<br>
+        {% for error in form.phone.errors %}
     <div class="alert alert-danger" role="alert">
         {{ error }}
     </div>

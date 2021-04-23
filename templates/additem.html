@@ -20,16 +20,18 @@
         {{ error }}
     </div>
     {% endfor %}
-    </p>
+</p>
     <p>
         {{ form.image.label }}<br>
-        {{ form.image(class="form-control") }}<br>
+        {{ form.image(class="form-control") }}
         {% for error in form.image.errors %}
     <div class="alert alert-danger" role="alert">
         {{ error }}
     </div>
     {% endfor %}
-    </p>
+</p>
+    Введите название уже загруженого на сервер изображения. Если нужная картинка не загружена, то перейдите по ссылке<br>
+    <a href="images">Загрузить</a>
     <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
 </form>

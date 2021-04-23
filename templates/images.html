@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Управление пользователями{% endblock %}
+{% block content %}
+    <h4><a href='addimage'>добавить новую картинку</a></h4>
+    <h1>Доступные изображения:</h1>
+    <div class="row row-cols-1 row-cols-md-1 mb-1 text-left">
+        <br>
+        <table class="table">
+            <thead>
+            <th>название изображения</th> <th>изображение</th>
+            </thead>
+            <tbody>
+                {% for el in data %}
+                    <div>
+                        <samp>
+                            <form action="/images" method="post">
+                            <tr><td>{{el}} </td><td> <img src="/static/img/{{ el }}" width="250" height="250" class="img-rounded"></td></tr>
+                            </form>
+                         </samp>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

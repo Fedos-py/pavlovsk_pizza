@@ -5,21 +5,31 @@ from wtforms.validators import DataRequired
 import sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from flask_forms import *
 from geocoder import geocoder_get_address
 import random
+from email_sender import send_email
+import os
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/blogs.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+UPLOAD_FOLDER = 'static/img/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
-roles = ['customer', 'admin']
+roles = ['customer', 'admin', 'manager', 'courier', 'chef']
+statuses = ['на проверке', 'готовится', 'готов', 'передан в службу доставки', 'выполнен']
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 basket_count = 0
 app.add_template_global(name='basket_count', f=basket_count)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -97,6 +107,10 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     address = db.Column(db.String)
     comment = db.Column(db.Text)
+    email = db.Column(db.Text)
+    phone = db.Column(db.Text)
+    name = db.Column(db.Text)
+    status = db.Column(db.Text)
     total = db.Column(db.Integer)
 
 class Order_items(db.Model):
@@ -173,18 +187,24 @@ def menu():
 
 @app.route('/users', methods=['GET', 'POST'])
 def users():
+    if request.method == 'POST':
+        idi = request.form['id']
+        print(idi)
+        if request.form.get("del") == "Удалить":
+            user = User.query.get(idi)
+            print(user)
+            if user != None:
+                db.session.delete(user)
+                db.session.commit()
+        elif request.form.get("save") == "Сохранить":
+            user = User.query.filter_by(id=idi).first()
+            print(user)
+            print('save')
+            user.role = request.form['select_role']
+            db.session.commit()
     users = User.query.all()
     print(users)
-    baskets = Basket.query.all()
-    for i in range(1, len(baskets) + 3):
-        s = 'btn' + str(i)
-        r = request.form.get(s)
-        print(r)
-        if r == '+':
-            print('plus')
-            basket = Basket.query.filter_by(user_id=current_user.id, id=i).first()
-            basket.count += 1
-    return render_template("users.html", data=users)
+    return render_template("users.html", data=users, roles=roles)
 
 @app.route('/orders', methods=['GET', 'POST'])
 def orderd():
@@ -203,15 +223,40 @@ def order():
             return redirect("/orders")
         elif request.form.get("open") == "Подробнее":
             order = Order.query.filter_by(id=id).first()
-            items = Order_items.query.filter_by(id=id).all()
+            items = Order_items.query.filter_by(order_id=id).all()
             print(order)
-            return render_template("order.html", data=order, items=items)
+            return render_template("order.html", data=order, items=items, statuses=statuses)
+        elif request.form.get('save'):
+            ord = Order.query.get(id)
+            if ord.status != request.form['select_status']:
+                pass
+            ord.status = request.form['select_status']
+            db.session.commit()
+            return redirect('/orders')
     else:
         return 'ошибка доступа, undefined id!'
 
 @app.route('/calc', methods=['GET', 'POST'])
 def calc():
     return render_template("deliveryCalculaor.html")
+
+@app.route('/images', methods=['GET', 'POST'])
+def images():
+    if request.method == "POST":
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    directory = os.path.abspath(__file__).split("\\")[:-1]
+    directory.append('static')
+    directory.append('img')
+    directory = '/'.join(directory)
+    files = os.listdir(directory)
+    return render_template("images.html", data=files)
+
+@app.route('/addimage', methods=['GET', 'POST'])
+def add_image():
+    return render_template("addimage.html")
 
 @app.route('/ordering', methods=['POST', 'GET'])
 def ordering():
@@ -231,6 +276,8 @@ def ordering():
             order.address = geocoder_get_address(d_coord)
             order.total = int(request.form['d_cost']) + summa
             order.comment = request.form['comment']
+            order.phone = request.form['phone']
+            order.status = 'на проверке'
             db.session.add(order)
             db.session.commit()
             order = Order.query.filter_by(address=geocoder_get_address(d_coord)).first()
@@ -242,6 +289,7 @@ def ordering():
             item = Order_items(order_id=order.id, item="Доставка", count=1, about='Доставка заказа по указанному адресу.', price=int(request.form['d_cost']))
             db.session.add(item)
             db.session.commit()
+            send_email('заказчик', order.id)
     return render_template("ordering.html", summa=summa, form=form)
 
 @app.route('/basket', methods=['GET', 'POST'])
