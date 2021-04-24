@@ -18,7 +18,7 @@ def send_email(name, idi, addr_to, status):
     password = "Yandex2021"  # Пароль
     msg = MIMEMultipart()  # Создаем сообщение
     msg['From'] = addr_from  # Адресат
-    msg['To'] = addr_to  # Получатель
+    msg['To'] = str(addr_to)  # Получатель
     msg['Subject'] = 'Ваш заказ принят!'  # Тема сообщения
     msg.attach(MIMEText(html, 'html'))  # Добавляем в сообщение текст
     server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)  # Создаем объект SMTP

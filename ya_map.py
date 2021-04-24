@@ -2,9 +2,11 @@ import os
 import sys
 import requests
 
-def map(address, path):
+
+def ymap(address, path):
     coordinates = geocoder(address)
     ya_map(coordinates.split()[0], coordinates.split()[1], path)
+
 
 def geocoder(address):
     geocoder_request = "http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode=" + \
@@ -24,7 +26,6 @@ def geocoder(address):
         # Координаты центра топонима:
         toponym_coodrinates = toponym["Point"]["pos"]
         # Печатаем извлечённые из ответа поля:
-        print(toponym_address, "имеет координаты:", toponym_coodrinates)
     else:
         print("Ошибка выполнения запроса:")
         print(geocoder_request)

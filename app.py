@@ -7,7 +7,8 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 import os
 from email_sender import send_email
 from flask_forms import *
-from ya_map import map
+from ya_map import ymap
+from geocoder import geocoder_get_address
 
 
 app = Flask(__name__)
@@ -58,8 +59,12 @@ try:
     @login_required
     def profile():
         update_basket()
-        if current_user.role == 'admin':
+        if current_user.role == 'admin' or current_user.role == 'manager':
             return render_template('profile_adm.html', title='Профиль · Pizza Online', data=current_user)
+        elif current_user.role == 'chef':
+            return render_template('profile_chef.html', title='Профиль · Pizza Online', data=current_user)
+        elif current_user.role == 'curier':
+            return render_template('profile_cur.html', title='Профиль · Pizza Online', data=current_user)
         else:
             return render_template('profile_user.html', title='Профиль · Pizza Online', data=current_user)
 
@@ -80,7 +85,7 @@ try:
             Декабристов, 16"
         filename = 'map.png'
         path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        map(address, path)
+        ymap(address, path)
         return render_template('contacts.html', title='Контакты · Pizza Online')
 
 
@@ -156,6 +161,7 @@ try:
             if user and check_password_hash(user.hashed_password, request.form["password"]):
                 rm = True if request.form.get('remainme') else False
                 login_user(user, remember=rm)
+                update_basket()
                 return redirect('/menu')
             else:
                 return render_template('error.html', error='ошибка авторизации')
@@ -167,10 +173,10 @@ try:
     def reg():
         form = LoginForm()
         if form.validate_on_submit():
-            print(request.form['email'])
-            user = User(name=request.form['username'],
-                        hashed_password=generate_password_hash(request.form['password']),
-                        email=request.form['email'])
+            name = request.form['username']
+            email = request.form['email']
+            pswd = generate_password_hash(request.form['password'])
+            user = User(name=name, hashed_password=pswd, email=email)
             db.session.add(user)
             db.session.commit()
             return redirect('/auth')
@@ -186,9 +192,7 @@ try:
                 idi = request.form['id']
                 item = Item.query.get(idi)
                 is_in_basket = Basket.query.filter_by(name=item.title, user_id=current_user.id).first()
-                print(is_in_basket)
                 if is_in_basket is None:
-                    print(True)
                     basket_elem = Basket()
                     basket_elem.name = item.title
                     basket_elem.user_id = current_user.id
@@ -251,7 +255,7 @@ try:
             idi = request.form['id']
             if request.form.get("open") == "Подробнее":
                 my_order = Order.query.get(idi)
-                items = Order_items.query.filter_by(order_id=idi).all()
+                items = OrderItems.query.filter_by(order_id=idi).all()
                 return render_template("my_order.html", data=my_order, items=items, title='Мой заказ · Pizza Online')
 
 
@@ -269,18 +273,19 @@ try:
                     return redirect("/orders")
                 elif request.form.get("open") == "Подробнее":
                     my_order = Order.query.filter_by(id=idi).first()
-                    items = Order_items.query.filter_by(order_id=idi).all()
+                    items = OrderItems.query.filter_by(order_id=idi).all()
                     return render_template("order.html", data=my_order, items=items, statuses=statuses)
                 elif request.form.get('save'):
                     my_order = Order.query.get(idi)
                     if my_order.status != request.form['select_status']:
-                        try:
-                            send_email(my_order.name, my_order.id, my_order.email, str(request.form['select_status']))
-                        except Exception:
-                            return render_template('error.html', error='неверный статус')
-                    my_order.status = request.form['select_status']
-                    db.session.commit()
-                    return redirect('/orders')
+                        # try:
+                        #    send_email(my_order.name, my_order.id, my_order.email, str(request.form['select_status']))
+                        # except Exception:
+                            # return render_template ('error.html', error='неверный статус, неудалось
+                        # отправить сообщение.')
+                        my_order.status = request.form['select_status']
+                        db.session.commit()
+                        return redirect('/orders')
             else:
                 return render_template('error.html', error='неверный id заказа')
         else:
@@ -335,25 +340,25 @@ try:
                 my_order.phone = request.form['phone']
                 my_order.status = 'на проверке'
                 my_order.name = current_user.name
-                print(current_user.email)
                 my_order.email = current_user.email
                 db.session.add(my_order)
                 db.session.commit()
                 my_order = Order.query.filter_by(address=geocoder_get_address(d_coord)).first()
                 my_basket = Basket.query.filter_by(user_id=current_user.id).all()
                 for elem in my_basket:
-                    item = Order_items(order_id=my_order.id, item=elem.name, count=elem.count, about=elem.about,
+                    item = OrderItems(order_id=my_order.id, item=elem.name, count=elem.count, about=elem.about,
                                        price=elem.price)
                     db.session.add(item)
-                item = Order_items(order_id=my_order.id, item="Доставка", count=1,
+                item = OrderItems(order_id=my_order.id, item="Доставка", count=1,
                                    about='Доставка заказа по указанному адресу.', price=int(request.form['d_cost']))
                 db.session.add(item)
                 db.session.commit()
-                try:
-                    send_email(my_order.name, my_order.id, my_order.email, 'успешно принят и уже готовится')
-                    return redirect('/my_orders')
-                except Exception:
-                    return render_template('error.html', error='указан неверный email')
+                # try:
+                #    send_email(my_order.name, my_order.id, my_order.email, 'успешно принят и уже готовится')
+                #    return redirect('/my_orders')
+                # except Exception:
+                #    return render_template('error.html', error='указан неверный email')
+                return redirect('/my_orders')
         else:
             return render_template("ordering.html", summa=summa, form=form, title='Оформление заказа · Pizza Online')
 
