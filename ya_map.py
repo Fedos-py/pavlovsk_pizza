@@ -7,7 +7,8 @@ def map(address, path):
     ya_map(coordinates.split()[0], coordinates.split()[1], path)
 
 def geocoder(address):
-    geocoder_request = "http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode="+address+"&format=json"
+    geocoder_request = "http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode=" + \
+                       address + "&format=json"
 
     # Выполняем запрос.
     response = requests.get(geocoder_request)
@@ -31,7 +32,8 @@ def geocoder(address):
     return toponym_coodrinates
 
 def ya_map(lat, lon, path):
-    map_request = "http://static-maps.yandex.ru/1.x/?ll=" + lat + "," + lon + "8&spn=0.002,0.002&l=map"
+    map_request = "http://static-maps.yandex.ru/1.x/?ll=" + lat + "," + lon + "&pt=" + lat + "," + lon + ",pm2rdl"\
+                  + "&spn=0.002,0.002&l=map"
     response = requests.get(map_request)
 
     if not response:
