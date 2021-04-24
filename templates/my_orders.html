@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Управление пользователями{% endblock %}
+{% block content %}
+    <h1>Мои заказы</h1>
+    <br>
+{% if data != []%}
+    <div class="row row-cols-1 row-cols-md-1 mb-1 text-left">
+        <br>
+        <table class="table">
+            <thead>
+            <th>id</th> <th>адресс</th> <th>сумма</th> <th>статус</th> <th>действие</th>
+            </thead>
+            <tbody>
+                {% for el in data %}
+                    <div>
+                        <samp>
+                            <form action="/my_order" method="post">
+                            <tr><td>{{el.id}} </td><td>{{el.address}}</td><td>{{el.total}}</td><td>{{el.status}}</td><td><input type="submit"  name="open" value="Подробнее"> <input type="text" name="id" id="id" value="{{el.id}}" size="5" hidden="hidden"></td></tr>
+                            </form>
+                         </samp>
+                    </div>
+                {% endfor %}
+            </tbody>
+            </tbody>
+        </table>
+    </div>
+{% else %}
+<h4>Вы ещё не сделали ни одного заказа :(</h4>
+{% endif %}
+{% endblock %}

@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Pizza Online{% endblock %}
 
 {% block content %}
 
-    <h1>Главная</h1>
+    <h1>Меню</h1>
 
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
         {% for el in items %}
@@ -17,6 +16,7 @@
                        <h1 class="card-title pricing-card-title">{{el.price}}<small class="text-muted fw-light"> руб</small></h1>
                        <ul class="list-unstyled mt-3 mb-4">
                            <img src="/static/img/{{ el.image }}" width="250" height="250" class="img-rounded">
+                           <li><textarea rows="5" cols="45" readonly="readonly" name="item_about"> {{ el.about }} </textarea></li>
                       </ul>
                       <form method="post">
                         <input type="hidden" class="form-control" value="{{ el.id }}" name="id" id="id">

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1>Добавление нового товара</h1>
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
     <p>
@@ -30,9 +31,9 @@
     </div>
     {% endfor %}
 </p>
+    <li><textarea rows="5" cols="50" name="about">  </textarea></li>
     Введите название уже загруженого на сервер изображения. Если нужная картинка не загружена, то перейдите по ссылке<br>
     <a href="images">Загрузить</a>
-    <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
 </form>
 {% endblock %}

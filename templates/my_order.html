@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Заказ №{{data.id}}</h1><br>
+<h4>Адресс доставки заказа:</h4> {{data.address}}<br>
+<h4>Комментарий к заказу:</h4> {{data.comment}}<br>
+<h4>Сумма заказа:</h4> {{data.total}}
+<h4>Товары:</h4>
+<div class="row row-cols-1 row-cols-md-1 mb-1 text-left">
+        <table class="table">
+            <thead>
+            <th>название</th> <th>цена</th><th>количество</th>
+            </thead>
+            <tbody>
+                {% for el in items %}
+                    <div>
+                        <tr><td>{{el.item}} </td><td>{{el.price}}</td><td>{{el.count}}</td></tr>
+                    </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+<h4>Имя получателя: </h4> {{data.name}} <br>
+<h4>Телефонный номер получателя: </h4> {{data.phone}} <br>
+<h4>Адресс электронной почты получателя: </h4> {{data.email}} <br>
+<h4>Статус заказа:</h4> {{data.status}}
+{% endblock %}
